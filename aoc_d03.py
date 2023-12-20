@@ -1,6 +1,6 @@
 import re
 
-test_data = '''467..114..
+d = '''467..114..
 ...*......
 ..35..633.
 ......#...
@@ -12,7 +12,7 @@ test_data = '''467..114..
 .664.598..
 2........1'''
 
-test_data = test_data.split('\n')
+d = d.split('\n')
 
 with open(r'C:\Users\dears002\Documents\adventofcode\input_d03.txt') as f:
     d = f.readlines()
@@ -28,94 +28,9 @@ for line in d:
             symbols.add(char)
 
 total_sum = 0
-#sums = []
-for i in range(len(d)):
-    print('Line ' + str(i))
-    line = d[i]
-    if i == 0:
-        prev_line = '.'*len(line)
-    else:
-        prev_line = d[i-1]
-    if i == len(d)-1:
-        next_line = '.'*len(line)
-    else:
-        next_line = d[i+1]
-    iter = re.finditer('[0-9]+', line)
-    locs = {}
-    dups = {}
-    for m in iter:
-        if m.group() not in locs:
-            locs[m.group()] = m.span()
-        else:
-            dups[m.group()] = m.span()
-            #raise Exception('DUPLICATE KEY')
-    #print(locs)
-    #line_dict[i] = locs
-    #i += 1
-    for k, v in locs.items():
-        print('Current iteration: ' + k,v)
-        if v[0] == 0:
-            prev_index = v[0]
-        else:
-            prev_index = v[0]-1
-        #if v[1] == 139:
-            #next_index = v[1]
-        #else:
-        #if v[1] == 140:
-        #    next_index = v[1]
-        #else:
-        next_index = v[1]+1
-        prev_line_substr = prev_line[prev_index:next_index]
-        cur_line_substr = line[prev_index:next_index]
-        next_line_substr = next_line[prev_index:next_index]
-        print(prev_line_substr)
-        print(cur_line_substr)
-        print(next_line_substr)
-        block = set(prev_line_substr + cur_line_substr + next_line_substr)
-        if set.intersection(block, symbols):
-            print(k + ' is adjacent to ' + ''.join(set.intersection(block, symbols)))
-            total_sum += int(k)
-            #linesum += int(k)
-            print('Total sum is ' + str(total_sum))
-            #print('Total sum is ' + str(linesum))
-        else:
-            print(k + ' is not symbol adjacent - not added')
-            print('Total sum is ' + str(total_sum))
-            #print('Total sum is ' + str(linesum))
-    for k, v in dups.items():
-        print('Current iteration: ' + k,v)
-        if v[0] == 0:
-            prev_index = v[0]
-        else:
-            prev_index = v[0]-1
-        #if v[1] == 139:
-            #next_index = v[1]
-        #else:
-        #if v[1] == 140:
-        #    next_index = v[1]
-        #else:
-        next_index = v[1]+1
-        prev_line_substr = prev_line[prev_index:next_index]
-        cur_line_substr = line[prev_index:next_index]
-        next_line_substr = next_line[prev_index:next_index]
-        print(prev_line_substr)
-        print(cur_line_substr)
-        print(next_line_substr)
-        block = set(prev_line_substr + cur_line_substr + next_line_substr)
-        if set.intersection(block, symbols):
-            print(k + ' is adjacent to ' + ''.join(set.intersection(block, symbols)))
-            total_sum += int(k)
-            #linesum += int(k)
-            print('Total sum is ' + str(total_sum))
-            #print('Total sum is ' + str(linesum))
-        else:
-            print(k + ' is not symbol adjacent - not added')
-            print('Total sum is ' + str(total_sum))
-            #print('Total sum is ' + str(linesum))
-    #sums.append(linesum)
 
-# Part 2
-total_sum = 0
+parts = []
+
 for i in range(len(d)):
     print('Line ' + str(i))
     line = d[i]
@@ -127,45 +42,72 @@ for i in range(len(d)):
         next_line = '.'*len(line)
     else:
         next_line = d[i+1]
-    
+
     iter = re.finditer('[0-9]+', line)
     locs = []
 
     for m in iter:
-        locs.append([m.group(), m.span()])
-    
+        print(m.group())
+        locs.append((m.group(), m.span()))
+
     for k, v in locs:
         print('Current iteration: ' + k,v)
-
         if v[0] == 0:
             prev_index = v[0]
         else:
             prev_index = v[0]-1
         
         next_index = v[1]+1
-
         prev_line_substr = prev_line[prev_index:next_index]
         cur_line_substr = line[prev_index:next_index]
         next_line_substr = next_line[prev_index:next_index]
 
-        print(prev_line_substr)
-        print(cur_line_substr)
-        print(next_line_substr)
-
-        block = [prev_line_substr, cur_line_substr, next_line_substr]
-
-        for j in range(len(block)):
-            if '*' in block[j]:
-                print('Found * in line ' + str(i-1+j))
-
+        print(prev_line_substr + '\n' + cur_line_substr + '\n' + next_line_substr)
+        block = set(prev_line_substr + cur_line_substr + next_line_substr)
 
         if set.intersection(block, symbols):
             print(k + ' is adjacent to ' + ''.join(set.intersection(block, symbols)))
+            parts.append((i, k, v))
             total_sum += int(k)
-            #linesum += int(k)
             print('Total sum is ' + str(total_sum))
-            #print('Total sum is ' + str(linesum))
         else:
             print(k + ' is not symbol adjacent - not added')
             print('Total sum is ' + str(total_sum))
-            #print('Total sum is ' + str(linesum))
+
+# Part 2
+parts
+gears = []
+
+for i in range(len(d)):
+    line = d[i]
+    iter = re.finditer(r'\*', line)
+    for m in iter:
+        gears.append((i, m.span()))
+
+double_gears = []
+gear_ratios = []
+for g in gears:
+    vals = []
+    part_count = 0
+    gear_line = g[0]
+    gear_index = g[1][0]
+    prev_line = gear_line-1
+    next_line = gear_line+1
+    temp_parts = [e for e in parts if prev_line <= e[0] <= next_line]
+    for p in temp_parts:
+        parts_index = range(p[2][0]-1, p[2][1]+1)
+        if gear_index in parts_index:
+            print('Found gear')
+            part_count +=1
+            vals.append(p[1])
+    if part_count == 2:
+        print('Found double gear')
+        double_gears.append(g)
+        gear_ratio = int(vals[0]) * int(vals[1])
+        gear_ratios.append(gear_ratio)
+
+double_gears
+gear_ratios
+sum(gear_ratios)
+
+
